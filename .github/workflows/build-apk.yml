@@ -53,10 +53,18 @@ jobs:
           npm install --save @capacitor/core@^6 @capacitor/android@^6
           npm install --save-dev @capacitor/cli@^6 @capacitor/assets@^3
 
-      - name: Initialize Capacitor (non-interactive)
+      - name: Write capacitor.config.json
         run: |
           set -eux
-          npx --yes cap init "Mazal" "com.mazal.app" --web-dir="www"
+          cat > capacitor.config.json <<'JSON'
+          {
+            "appId": "com.mazal.app",
+            "appName": "Mazal",
+            "webDir": "www",
+            "bundledWebRuntime": false
+          }
+          JSON
+          cat capacitor.config.json
 
       - name: Add Android platform
         run: npx --yes cap add android
@@ -65,9 +73,14 @@ jobs:
         run: |
           set -eux
           mkdir -p assets
+          # @capacitor/assets prefers a 1024x1024 icon; resize using sharp via npx
           cp icons/icon-512.png assets/icon.png
-          # @capacitor/assets generates Android launcher icons & splash from assets/icon.png
-          npx --yes @capacitor/assets generate --android || echo "Icon generation failed - continuing with default icons"
+          # Try to upscale to 1024 if ImageMagick is available; otherwise leave 512.
+          if command -v convert >/dev/null 2>&1; then
+            convert assets/icon.png -resize 1024x1024 assets/icon.png
+          fi
+          npx --yes @capacitor/assets generate --android --assetPath assets || \
+            echo "Icon generation failed - continuing with default icons"
 
       - name: Sync Capacitor (copy web assets into android project)
         run: npx --yes cap sync android
@@ -79,36 +92,46 @@ jobs:
           chmod +x ./gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace
 
-      - name: Locate built APK
+      - name: Locate and rename built APK
         id: apk
         run: |
           set -eux
           APK_PATH=$(find android/app/build/outputs/apk/debug -name "*.apk" | head -n1)
           echo "Found APK at: $APK_PATH"
-          cp "$APK_PATH" mazal-debug.apk
-          echo "path=mazal-debug.apk" >> "$GITHUB_OUTPUT"
+          cp "$APK_PATH" mazal.apk
+          ls -la mazal.apk
+          echo "path=mazal.apk" >> "$GITHUB_OUTPUT"
 
       - name: Upload APK as workflow artifact
         uses: actions/upload-artifact@v4
         with:
-          name: mazal-debug-apk
-          path: mazal-debug.apk
+          name: mazal-apk
+          path: mazal.apk
           if-no-files-found: error
+
+      - name: Delete previous apk-latest release (ignore if missing)
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          gh release delete apk-latest --yes --cleanup-tag --repo "${{ github.repository }}"
+          exit 0
 
       - name: Publish APK to rolling release (apk-latest)
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: apk-latest
-          name: Latest debug APK
+          name: Latest Mazal APK
           body: |
             Automatic debug build of the Mazal Android APK.
 
             Built from commit ${{ github.sha }} on ${{ github.ref_name }}.
 
-            Install on Android: download mazal-debug.apk, open it, allow "Install unknown apps" if prompted.
-          files: mazal-debug.apk
-          prerelease: true
-          make_latest: 'false'
+            Install on Android: download mazal.apk, open it, allow "Install unknown apps" if prompted.
+          files: mazal.apk
+          prerelease: false
+          make_latest: 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
