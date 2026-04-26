@@ -1,0 +1,51 @@
+# מזל קל לדרך
+
+PWA אישית חד-תכליתית. כשמתחשק לעשות משהו פתייני (למשל לבזבז זמן במסכים) — פותחים את האפליקציה, מקלידים את "המספרים שלך" בין 1 ל-10, ומגרילים מספר אקראי. אם הוא לא ברשימה — הודעה רכה לוותר. רפלקציה בלבד, ללא חסימה ובלי שמירת מצב בין הפעלות.
+
+## הרצה לוקלית
+
+ה-Service Worker דורש `http://` (לא `file://`). הדרך הפשוטה ביותר:
+
+```bash
+cd fortune-pwa
+python -m http.server 8000
+```
+
+פתחו `http://localhost:8000` בדפדפן.
+
+## ייצור אייקונים
+
+קבצי ה-PNG נמצאים כבר ב-`icons/`. אם תרצו לייצר מחדש (למשל אחרי שינוי `icon.svg`):
+
+```bash
+pip install Pillow
+python tools/build-icons.py
+```
+
+הסקריפט משתמש ב-Pillow בלבד — בלי תלות ב-cairosvg.
+
+## העלאה לאחסון סטטי חינמי
+
+חובה HTTPS כדי שה-Service Worker יעבוד.
+
+- **GitHub Pages**: דחפו את התיקייה `fortune-pwa/` לריפו, ב-Settings → Pages בחרו את ה-branch ואת התיקייה.
+- **Netlify Drop**: גוררים את התיקייה כולה ל-https://app.netlify.com/drop. מקבלים URL מיידי עם HTTPS.
+- **Vercel**: `npx vercel --prod` מתוך התיקייה (או חיבור הריפו דרך ה-dashboard).
+
+## התקנה על אנדרואיד
+
+1. פתחו את ה-URL ב-Chrome.
+2. המתינו 5 שניות לרישום ה-Service Worker.
+3. תפריט (⋮) → **"Add to Home screen"** או **"Install app"**.
+4. האייקון יופיע במסך הבית. לחיצה תפתח את האפליקציה במצב standalone (בלי שורת כתובת).
+5. אחרי טעינה ראשונה — האפליקציה תעבוד גם במצב Airplane.
+
+## פתרון בעיות
+
+- **שינויים לא נראים אחרי דיפלוי**: ה-SW מגיש מקאש. שדרגו את הגרסה — שנו את `CACHE = 'fortune-v1'` ב-`sw.js` ל-`'fortune-v2'` ודחפו שוב.
+- **"Add to Home screen" לא מופיע**: ודאו שאתם על HTTPS (או localhost), שה-`manifest.json` נטען (DevTools → Application), ושה-SW רשום (Application → Service Workers).
+- **איפוס מלא במכשיר**: הסירו את ההתקנה והתקינו מחדש, או נקו cache בהגדרות האתר.
+
+## מה נשמר?
+
+כלום. אין `localStorage`, `sessionStorage`, `IndexedDB` או cookies. כל פתיחה — לוח חלק.
