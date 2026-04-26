@@ -1,0 +1,114 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build debug APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up JDK 17 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-34 build-tools;34.0.0'
+
+      - name: Stage web files into www/
+        run: |
+          set -eux
+          mkdir -p www/icons
+          cp index.html app.js styles.css manifest.json sw.js www/
+          cp -r icons/. www/icons/
+
+      - name: Initialize npm project
+        run: |
+          set -eux
+          npm init -y
+          npm pkg set name="mazal-apk-build"
+          npm pkg set private=true
+
+      - name: Install Capacitor
+        run: |
+          set -eux
+          npm install --save @capacitor/core@^6 @capacitor/android@^6
+          npm install --save-dev @capacitor/cli@^6 @capacitor/assets@^3
+
+      - name: Initialize Capacitor (non-interactive)
+        run: |
+          set -eux
+          npx --yes cap init "Mazal" "com.mazal.app" --web-dir="www"
+
+      - name: Add Android platform
+        run: npx --yes cap add android
+
+      - name: Generate Android icons from icon-512.png
+        run: |
+          set -eux
+          mkdir -p assets
+          cp icons/icon-512.png assets/icon.png
+          # @capacitor/assets generates Android launcher icons & splash from assets/icon.png
+          npx --yes @capacitor/assets generate --android || echo "Icon generation failed - continuing with default icons"
+
+      - name: Sync Capacitor (copy web assets into android project)
+        run: npx --yes cap sync android
+
+      - name: Build debug APK with Gradle
+        working-directory: android
+        run: |
+          set -eux
+          chmod +x ./gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Locate built APK
+        id: apk
+        run: |
+          set -eux
+          APK_PATH=$(find android/app/build/outputs/apk/debug -name "*.apk" | head -n1)
+          echo "Found APK at: $APK_PATH"
+          cp "$APK_PATH" mazal-debug.apk
+          echo "path=mazal-debug.apk" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mazal-debug-apk
+          path: mazal-debug.apk
+          if-no-files-found: error
+
+      - name: Publish APK to rolling release (apk-latest)
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-latest
+          name: Latest debug APK
+          body: |
+            Automatic debug build of the Mazal Android APK.
+
+            Built from commit ${{ github.sha }} on ${{ github.ref_name }}.
+
+            Install on Android: download mazal-debug.apk, open it, allow "Install unknown apps" if prompted.
+          files: mazal-debug.apk
+          prerelease: true
+          make_latest: 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
