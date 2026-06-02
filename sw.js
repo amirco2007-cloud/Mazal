@@ -1,9 +1,10 @@
-const CACHE = 'fortune-v2';
+const CACHE = 'fortune-v3';
 const ASSETS = [
   './',
   './index.html',
   './styles.css',
   './app.js',
+  './mazal-native.js',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png'

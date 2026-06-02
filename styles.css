@@ -155,3 +155,134 @@ body {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+.btn-gear {
+  position: fixed;
+  top: 14px;
+  inset-inline-end: 14px;
+  width: 44px;
+  height: 44px;
+  font-size: 22px;
+  line-height: 1;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.intercept-note {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: #ECC94B;
+  max-width: 92%;
+}
+
+.btn-continue {
+  font: inherit;
+  font-size: 17px;
+  font-weight: 700;
+  padding: 12px 28px;
+  color: #744210;
+  background: #ECC94B;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-continue:active { transform: scale(0.97); }
+
+.settings {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: linear-gradient(180deg, #7B1F1F 0%, #B83232 100%);
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+}
+
+.settings-inner {
+  width: 100%;
+  max-width: 480px;
+  padding: 28px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+}
+
+.perm-warning {
+  margin: 0;
+  padding: 12px 14px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #742a2a;
+  background: #FED7D7;
+  border-radius: 8px;
+}
+
+.btn-grant {
+  display: inline-block;
+  margin-top: 8px;
+  font: inherit;
+  font-weight: 700;
+  padding: 8px 16px;
+  color: #fff;
+  background: #9B2C2C;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.app-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.app-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+.app-list li label {
+  flex: 1;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.app-list input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  accent-color: #ECC94B;
+  flex: none;
+}
+
+.app-list-empty {
+  text-align: center;
+  opacity: 0.8;
+  padding: 24px 0;
+}
+
+.settings-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 8px;
+}

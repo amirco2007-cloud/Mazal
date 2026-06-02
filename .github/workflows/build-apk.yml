@@ -37,7 +37,7 @@ jobs:
         run: |
           set -eux
           mkdir -p www/icons
-          cp index.html app.js styles.css manifest.json sw.js www/
+          cp index.html app.js styles.css manifest.json sw.js mazal-native.js www/
           cp -r icons/. www/icons/
 
       - name: Initialize npm project
@@ -68,6 +68,9 @@ jobs:
 
       - name: Add Android platform
         run: npx --yes cap add android
+
+      - name: Inject native sources and patch manifest
+        run: python3 native/inject.py
 
       - name: Generate Android icons from icon-512.png
         run: |
