@@ -1,4 +1,4 @@
-const CACHE = 'fortune-v3';
+const CACHE = 'fortune-v4';
 const ASSETS = [
   './',
   './index.html',

@@ -25,6 +25,7 @@ import java.util.Set;
 public class MazalNativePlugin extends Plugin {
 
     public static final String EXTRA_TARGET = "mazal_intercept_target";
+    public static final String EXTRA_REASON = "mazal_intercept_reason";
 
     @PluginMethod
     public void getInstalledApps(PluginCall call) {
@@ -99,12 +100,17 @@ public class MazalNativePlugin extends Plugin {
     public void getInterceptTarget(PluginCall call) {
         JSObject ret = new JSObject();
         String pkg = null;
+        String reason = null;
         if (getActivity() != null && getActivity().getIntent() != null) {
             pkg = getActivity().getIntent().getStringExtra(EXTRA_TARGET);
+            reason = getActivity().getIntent().getStringExtra(EXTRA_REASON);
             getActivity().getIntent().removeExtra(EXTRA_TARGET);
+            getActivity().getIntent().removeExtra(EXTRA_REASON);
         }
         if (pkg == null) ret.put("packageName", org.json.JSONObject.NULL);
         else ret.put("packageName", pkg);
+        if (reason == null) ret.put("reason", org.json.JSONObject.NULL);
+        else ret.put("reason", reason);
         call.resolve(ret);
     }
 
@@ -115,8 +121,10 @@ public class MazalNativePlugin extends Plugin {
         // re-enter intercept mode without a full page reload.
         String pkg = intent.getStringExtra(EXTRA_TARGET);
         if (pkg != null) {
+            String reason = intent.getStringExtra(EXTRA_REASON);
             JSObject data = new JSObject();
             data.put("packageName", pkg);
+            data.put("reason", reason);
             notifyListeners("intercept", data);
         }
     }

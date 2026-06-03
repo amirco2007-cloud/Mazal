@@ -39,10 +39,13 @@
       return plugin.continueToApp({ packageName });
     },
 
-    // Fires when a blocked app is opened while Mazal is already in memory.
+    // Fires when a blocked app is opened (or runs 5 min straight) while Mazal
+    // is already in memory. Passes (packageName, reason) — reason is
+    // "entry" or "duration".
     addInterceptListener(cb) {
       if (!plugin || !plugin.addListener) return;
-      plugin.addListener('intercept', data => cb(data && data.packageName));
+      plugin.addListener('intercept', data =>
+        cb(data && data.packageName, data && data.reason));
     }
   };
 })();

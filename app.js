@@ -131,10 +131,12 @@
 
   // ---- Intercept mode ----------------------------------------------------
 
-  async function enterInterceptMode(packageName) {
+  async function enterInterceptMode(packageName, reason) {
     interceptTarget = packageName;
     interceptNote.hidden = false;
-    interceptNote.textContent = 'רגע לפני שאתה נכנס — בוא נגריל';
+    interceptNote.textContent = reason === 'duration'
+      ? 'רצף של 5 דקות — בוא נגריל'
+      : 'רגע לפני שאתה נכנס — בוא נגריל';
     continueBtn.textContent = 'המשך לאפליקציה';
     continueBtn.disabled = false;
     // Best-effort: replace with the app's friendly name if we can find it.
@@ -148,14 +150,14 @@
   // Fresh launch: read the target the AccessibilityService put on the intent.
   async function applyInterceptMode() {
     try {
-      const { packageName } = await window.MazalNative.getInterceptTarget();
+      const { packageName, reason } = await window.MazalNative.getInterceptTarget();
       if (!packageName) {
         interceptTarget = null;
         interceptNote.hidden = true;
         continueBtn.hidden = true;
         return;
       }
-      await enterInterceptMode(packageName);
+      await enterInterceptMode(packageName, reason);
     } catch (_) {
       interceptTarget = null;
     }
@@ -240,11 +242,11 @@
   applyInterceptMode();
 
   // Activity reused while in memory: a new blocked app fires this event.
-  window.MazalNative.addInterceptListener(packageName => {
+  window.MazalNative.addInterceptListener((packageName, reason) => {
     if (!packageName) return;
     reset();
     closeSettings();
-    enterInterceptMode(packageName);
+    enterInterceptMode(packageName, reason);
   });
 
   if ('serviceWorker' in navigator) {

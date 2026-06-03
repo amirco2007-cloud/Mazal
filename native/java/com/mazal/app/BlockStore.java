@@ -13,7 +13,9 @@ public final class BlockStore {
     private static final String KEY_BLOCKED = "blocked_packages";
     private static final String KEY_GRACE_PKG = "grace_pkg";
     private static final String KEY_GRACE_UNTIL = "grace_until";
-    private static final long DEFAULT_GRACE_MS = 8000L;
+    // Short grace only to absorb the continue → target transition flicker, so that
+    // virtually every genuine re-entry still triggers a fresh draw.
+    private static final long DEFAULT_GRACE_MS = 2000L;
 
     private BlockStore() {}
 
