@@ -15,12 +15,8 @@
   <title>מזל קל לדרך</title>
 </head>
 <body>
-  <button id="open-settings" type="button" class="btn-gear" aria-label="הגדרות">⚙</button>
-
   <main class="app">
     <h1 class="title">מזל קל לדרך</h1>
-
-    <p id="intercept-note" class="intercept-note" hidden></p>
 
     <div class="mode" role="radiogroup" aria-label="סוג ההרגל">
       <button type="button" class="mode-btn active" role="radio" aria-checked="true" data-mode="avoid">הרגל להימנע</button>
@@ -40,26 +36,9 @@
 
     <section id="result" class="result" role="status" aria-live="polite"></section>
 
-    <button id="continue-app" type="button" class="btn-continue" hidden></button>
     <button id="reset" type="button" class="btn-reset" hidden>סבב חדש</button>
   </main>
 
-  <section id="settings" class="settings" hidden>
-    <div class="settings-inner">
-      <h2 class="settings-title">אפליקציות שיפעילו את מזל</h2>
-      <p id="perm-warning" class="perm-warning" hidden>
-        יש להפעיל הרשאת נגישות כדי שמזל יקפוץ לפני אפליקציות.
-        <button id="grant-perm" type="button" class="btn-grant">הפעלת הרשאה</button>
-      </p>
-      <ul id="app-list" class="app-list" aria-label="רשימת אפליקציות"></ul>
-      <div class="settings-actions">
-        <button id="save-settings" type="button" class="btn-draw">שמירה</button>
-        <button id="close-settings" type="button" class="btn-reset">סגירה</button>
-      </div>
-    </div>
-  </section>
-
-  <script src="./mazal-native.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>
